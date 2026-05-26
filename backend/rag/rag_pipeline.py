@@ -19,9 +19,12 @@ def answer_with_retrieval(query, vectorstore_path, top_k=3):
 
         # PDF 출처, 페이지 정보 저장
         sources.append({
-            "source": doc.metadata.get("source"),
-            "page": doc.metadata.get("page_label")
-        })
+    "company_name": doc.metadata.get("company_name"),
+    "report_date": doc.metadata.get("report_date"),
+    "securities_firm": doc.metadata.get("securities_firm"),
+    "source": doc.metadata.get("source"),
+    "page": doc.metadata.get("page_label")
+})
 
     # 아직 LLM 연결 전이므로 검색 근거를 기반으로 단순 답변 생성
     answer = make_simple_answer(query, contexts, sources)
@@ -49,9 +52,13 @@ def make_simple_answer(query, contexts, sources):
 
 [출처]
 """
-
     # 검색된 문서의 출처 페이지를 함께 표시
+    
     for source in sources:
-        answer += f"- {source['source']}, page {source['page']}\n"
-
-    return answer
+        answer += (
+            f"- {source['company_name']} / "
+            f"{source['securities_firm']} / "
+            f"{source['report_date']} / "
+            f"page {source['page']}\n"
+            )
+        return answer

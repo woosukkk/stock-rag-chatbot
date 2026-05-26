@@ -15,7 +15,12 @@ pdf_path = "data/raw/samsung_report.pdf"
 save_path = "data/vectorstore/samsung_report_faiss"
 
 # PDF 로드
-documents = load_pdf(pdf_path)
+documents = load_pdf(
+    pdf_path,
+    company_name="삼성전자",
+    report_date="2026-04-08",
+    securities_firm="키움증권"
+)
 
 # 문서를 chunk 단위로 분리
 chunks = split_documents(documents)

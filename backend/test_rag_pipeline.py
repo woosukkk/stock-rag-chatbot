@@ -12,12 +12,9 @@ query = "삼성전자 영업이익 전망 알려줘"
 result = answer_with_retrieval(query, vectorstore_path, top_k=3)
 
 print("=" * 50)
-print(f"질문: {result['question']}")
+print(result["answer"])
 print("=" * 50)
 
-print("\n[검색된 근거 Context]")
-print(result["context"][:3000])
-
-print("\n[출처 Metadata]")
+print("\n[출처 정보]")
 for source in result["sources"]:
     print(source)

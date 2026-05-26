@@ -6,7 +6,12 @@ from rag.pdf_loader import load_pdf
 pdf_path = "data/raw/samsung_report.pdf"
 
 # PDF 문서 로드
-documents = load_pdf(pdf_path)
+documents = load_pdf(
+    pdf_path,
+    company_name="삼성전자",
+    report_date="2026-04-08",
+    securities_firm="키움증권"
+)
 
 # 페이지 개수 출력
 print(f"총 페이지 수: {len(documents)}")

@@ -9,7 +9,12 @@ from rag.chunker import split_documents
 pdf_path = "data/raw/samsung_report.pdf"
 
 # PDF 문서를 페이지 단위로 로드
-documents = load_pdf(pdf_path)
+documents = load_pdf(
+    pdf_path,
+    company_name="삼성전자",
+    report_date="2026-04-08",
+    securities_firm="키움증권"
+)
 
 # 페이지 문서를 검색용 chunk 단위로 분리
 chunks = split_documents(documents)
