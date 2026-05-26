@@ -9,3 +9,5 @@ tiktoken
 pandas
 requests
 beautifulsoup4
+sentence-transformers
+langchain-huggingface
