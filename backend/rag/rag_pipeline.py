@@ -9,14 +9,49 @@ def answer_with_retrieval(query, vectorstore_path, top_k=3):
     # 질문과 관련 있는 chunk 검색
     docs = vectorstore.similarity_search(query, k=top_k)
 
-    # 검색된 문서 내용을 하나의 context로 합치기
-    context = "\n\n".join([doc.page_content for doc in docs])
+    # 검색된 chunk를 답변 근거로 정리
+    contexts = []
+    sources = []
 
-    # 아직 LLM 연결 전이므로 검색 근거만 반환
-    result = {
+    for doc in docs:
+        # 검색된 본문 내용 저장
+        contexts.append(doc.page_content)
+
+        # PDF 출처, 페이지 정보 저장
+        sources.append({
+            "source": doc.metadata.get("source"),
+            "page": doc.metadata.get("page_label")
+        })
+
+    # 아직 LLM 연결 전이므로 검색 근거를 기반으로 단순 답변 생성
+    answer = make_simple_answer(query, contexts, sources)
+
+    return {
         "question": query,
-        "context": context,
-        "sources": [doc.metadata for doc in docs]
+        "answer": answer,
+        "contexts": contexts,
+        "sources": sources
     }
 
-    return result
+
+def make_simple_answer(query, contexts, sources):
+    # 검색된 chunk 중 첫 번째 결과를 가장 관련 높은 근거로 사용
+    main_context = contexts[0]
+
+    # 사용자가 볼 수 있는 기본 답변 형식 생성
+    answer = f"""
+질문: {query}
+
+검색된 증권 리포트 내용을 기준으로 보면, 아래 내용이 질문과 가장 관련 있는 근거입니다.
+
+[핵심 근거]
+{main_context[:1200]}
+
+[출처]
+"""
+
+    # 검색된 문서의 출처 페이지를 함께 표시
+    for source in sources:
+        answer += f"- {source['source']}, page {source['page']}\n"
+
+    return answer
