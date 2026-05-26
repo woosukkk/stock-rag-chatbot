@@ -73,6 +73,43 @@ def answer_with_retrieval(query, vectorstore_path, top_k=3):
     }
 
 
+def extract_important_lines(context):
+    # 검색된 chunk에서 답변에 필요한 핵심 줄만 뽑기 위한 키워드
+    keywords = [
+        "영업이익",
+        "매출액",
+        "목표주가",
+        "투자의견",
+        "전망",
+        "성장",
+        "증가",
+        "감소",
+        "개선",
+        "BUY",
+        "Maintain"
+    ]
+
+    important_lines = []
+
+    # chunk를 줄 단위로 나누어 확인
+    lines = context.split("\n")
+
+    for line in lines:
+        clean_line = line.strip()
+
+        # 빈 줄은 제외
+        if not clean_line:
+            continue
+
+        # 핵심 키워드가 포함된 줄만 저장
+        for keyword in keywords:
+            if keyword in clean_line:
+                important_lines.append(clean_line)
+                break
+
+    return important_lines
+
+
 def make_simple_answer(query, contexts, sources):
     # 검색 결과가 없는 경우 오류 대신 안내 메시지 반환
     if not contexts:
@@ -91,14 +128,23 @@ def make_simple_answer(query, contexts, sources):
     # 가장 관련도가 높은 첫 번째 chunk 사용
     main_context = contexts[0]
 
+    # 검색된 chunk에서 핵심 줄만 추출
+    important_lines = extract_important_lines(main_context)
+
+    # 핵심 줄이 없으면 기존 chunk 일부를 fallback으로 사용
+    if important_lines:
+        evidence_text = "\n".join(important_lines[:10])
+    else:
+        evidence_text = main_context[:1200]
+
     # 사용자에게 보여줄 답변 생성
     answer = f"""
 질문: {query}
 
-검색된 증권 리포트 내용을 기준으로 보면, 아래 내용이 질문과 가장 관련 있는 근거입니다.
+검색된 증권 리포트 내용을 기준으로 핵심 내용을 정리하면 다음과 같습니다.
 
 [핵심 근거]
-{main_context[:1200]}
+{evidence_text}
 
 [출처]
 """
