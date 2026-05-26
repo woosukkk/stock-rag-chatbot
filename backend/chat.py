@@ -2,11 +2,11 @@
 from rag.rag_pipeline import answer_with_retrieval
 
 
-# 저장된 FAISS 벡터DB 경로
-vectorstore_path = "data/vectorstore/samsung_report_faiss"
+# 여러 리포트를 합쳐 저장한 FAISS 벡터DB 경로
+vectorstore_path = "data/vectorstore/report_faiss"
 
 
-print("삼성전자 증권 리포트 기반 RAG 챗봇")
+print("증권 리포트 기반 회사 전망 RAG 챗봇")
 print("종료하려면 q 또는 quit 입력")
 print("=" * 50)
 
