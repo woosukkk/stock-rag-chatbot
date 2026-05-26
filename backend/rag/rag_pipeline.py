@@ -4,18 +4,22 @@ from rag.retriever import load_vectorstore
 
 # 질문 안에서 회사명 key 감지
 def detect_company(query):
-    # 파일명/metadata와 맞추기 위해 영어 key 기준 사용
-    companies = [
-        "samsung",
-        "hyundai",
-        "skhynix",
-        "lgenergy"
-    ]
+    # 사용자 입력 회사명과 내부 metadata key를 매핑
+    company_aliases = {
+        "samsung": ["samsung", "삼성전자", "삼성"],
+        "hyundai": ["hyundai", "현대차", "현대자동차"],
+        "skhynix": ["skhynix", "SK하이닉스", "하이닉스"],
+        "lgenergy": ["lgenergy", "LG에너지솔루션", "엘지에너지솔루션"]
+    }
 
-    # 대소문자 차이를 무시하고 회사명 key가 질문에 포함되어 있는지 확인
-    for company in companies:
-        if company.lower() in query.lower():
-            return company
+    # 대소문자 차이를 무시하기 위해 소문자로 변환
+    lower_query = query.lower()
+
+    # 질문 안에 alias가 포함되어 있으면 내부 key 반환
+    for company_key, aliases in company_aliases.items():
+        for alias in aliases:
+            if alias.lower() in lower_query:
+                return company_key
 
     return None
 
@@ -117,11 +121,11 @@ def make_simple_answer(query, contexts, sources):
 질문: {query}
 
 해당 회사와 관련된 검색 결과를 찾지 못했습니다.
-질문에 입력한 회사명 key와 PDF 파일명에서 추출된 company_name metadata가 일치하는지 확인해주세요.
+질문에 입력한 회사명과 PDF 파일명에서 추출된 company_name metadata가 일치하는지 확인해주세요.
 
 예시 질문:
-- samsung 전망 알려줘
-- hyundai 영업이익 전망 알려줘
+- 삼성전자 전망 알려줘
+- 현대차 영업이익 전망 알려줘
 - skhynix 매출 전망 알려줘
 """
 
