@@ -1,39 +1,59 @@
-# Colab LLM 실험에 사용할 retrieval 결과를 JSON으로 저장하는 파일
 import json
 import os
 
 from rag.rag_pipeline import answer_with_retrieval
 
-
-# 저장된 FAISS 벡터DB 경로
 vectorstore_path = "data/vectorstore/report_faiss"
 
-# 사용자 질문 입력
-query = input("질문 입력: ")
+print("삼성전자 RAG 테스트")
+print("종료하려면 q 입력")
+print("=" * 50)
 
-# RAG 검색 실행
-result = answer_with_retrieval(query, vectorstore_path, top_k=3)
+while True:
+    query = input("\n질문 입력: ")
 
-# Colab에 넘길 데이터 정리
-export_data = {
-    "question": result["question"],
-    "company_name": result["company_name"],
-    "intents": result["intents"],
-    "contexts": result["contexts"],
-    "sources": result["sources"],
-}
+    if query.lower() == "q":
+        break
 
-# 저장 폴더 생성
-os.makedirs("data/processed", exist_ok=True)
+    result = answer_with_retrieval(
+        query,
+        vectorstore_path,
+        top_k=3
+    )
 
-# 저장할 파일 경로
-output_path = "data/processed/retrieval_result.json"
+    print("\n[검색된 Context]")
+    print("-" * 50)
 
-# JSON 파일 저장
-with open(output_path, "w", encoding="utf-8") as f:
-    json.dump(export_data, f, ensure_ascii=False, indent=2)
+    for i, context in enumerate(result["contexts"]):
+        print(f"\nContext {i+1}")
+        print(context[:1000])
 
-print("retrieval 결과 저장 완료")
-print(f"질문: {query}")
-print(f"회사: {result['company_name']}")
-print(f"저장 위치: {output_path}")
+    print("\n[출처]")
+    print("-" * 50)
+
+    for source in result["sources"]:
+        print(source)
+
+    export_data = {
+        "question": result["question"],
+        "company_name": result["company_name"],
+        "intents": result["intents"],
+        "contexts": result["contexts"],
+        "sources": result["sources"],
+    }
+
+    os.makedirs("data/processed", exist_ok=True)
+
+    with open(
+        "data/processed/retrieval_result.json",
+        "w",
+        encoding="utf-8"
+    ) as f:
+        json.dump(
+            export_data,
+            f,
+            ensure_ascii=False,
+            indent=2
+        )
+
+    print("\nretrieval_result.json 저장 완료")
